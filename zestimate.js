@@ -10,7 +10,7 @@ async function getZestimate(URL) {
   const browser = await puppeteer.launch({
     headless: 'new',
     executablePath: '/usr/bin/google-chrome',
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--headless']
   });
 
   const page = await browser.newPage();
