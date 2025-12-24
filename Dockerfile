@@ -1,23 +1,12 @@
 # Use an official Node.js runtime as a parent image
 FROM node:22
 
-RUN apt-get update -qq -y && \
-    apt-get install -y \
-        libasound2 \
-        libatk-bridge2.0-0 \
-        libgtk-4-1 \
-        libnss3 \
-        xdg-utils \
-        wget && \
-    wget -q -O chrome-linux64.zip https://storage.googleapis.com/chrome-for-testing-public/131.0.6778.204/linux64/chrome-linux64.zip && \
-    unzip chrome-linux64.zip && \
-    rm chrome-linux64.zip && \
-    mv chrome-linux64 /opt/chrome/ && \
-    ln -s /opt/chrome/chrome /usr/local/bin/ && \
-    wget -q -O chromedriver-linux64.zip https://storage.googleapis.com/chrome-for-testing-public/131.0.6778.204/linux64/chromedriver-linux64.zip && \
-    unzip -j chromedriver-linux64.zip chromedriver-linux64/chromedriver && \
-    rm chromedriver-linux64.zip && \
-    mv chromedriver /usr/local/bin/
+RUN apt-get update && apt-get install -y curl gnupg \
+    && curl --location --silent https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
+    && apt-get update \
+    && apt-get install -y google-chrome-stable --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
 
 # Don't run as root
 USER node
@@ -37,8 +26,8 @@ ENV ACTUAL_SYNC_ID=""
 # allow self-signed SSL certs
 ENV NODE_TLS_REJECT_UNAUTHORIZED=0
 
-# needed for Selenium+chromedriver
-ENV CHROMEDRIVER_SKIP_DOWNLOAD=true
+# needed for Puppeteer
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
 # optional, for encrypted files
 ENV ACTUAL_FILE_PASSWORD=""
